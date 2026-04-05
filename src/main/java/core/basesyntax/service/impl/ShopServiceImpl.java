@@ -1,23 +1,29 @@
-package core.basesyntax.shopservices;
+package core.basesyntax.service.impl;
 
-import core.basesyntax.OperationHandler;
 import core.basesyntax.model.FruitTransaction;
-import core.basesyntax.strategy.OperationStrategy; // Импортируй свою стратегию
+import core.basesyntax.service.ShopService;
+import core.basesyntax.strategy.OperationHandler; // ПРАВИЛЬНЫЙ ПУТЬ
+import core.basesyntax.strategy.OperationStrategy;
 import java.util.List;
 
 public class ShopServiceImpl implements ShopService {
     private final OperationStrategy strategy;
 
-    // Конструктор: говорим, что для работы нам ОБЯЗАТЕЛЬНО нужна стратегия
     public ShopServiceImpl(OperationStrategy strategy) {
         this.strategy = strategy;
     }
 
     @Override
     public void process(List<FruitTransaction> transactions) {
+        if (transactions == null) {
+            throw new RuntimeException("Transactions list cannot be null");
+        }
         for (FruitTransaction transaction : transactions) {
-            // Теперь поле strategy доступно
             OperationHandler handler = strategy.get(transaction.getOperation());
+            if (handler == null) {
+                throw new RuntimeException("No handler found for operation: "
+                        + transaction.getOperation());
+            }
             handler.handle(transaction.getFruit(), transaction.getQuantity());
         }
     }
