@@ -1,11 +1,14 @@
 package core.basesyntax.model;
 
 public class FruitTransaction {
-    private Operation operation;
-    private String fruit;
-    private int quantity;
+    private final Operation operation;
+    private final String fruit;
+    private final int quantity;
 
     public FruitTransaction(Operation operation, String fruit, int quantity) {
+        if (operation == null || fruit == null) {
+            throw new RuntimeException("Operation and fruit cannot be null");
+        }
         this.operation = operation;
         this.fruit = fruit;
         this.quantity = quantity;
@@ -24,12 +27,9 @@ public class FruitTransaction {
     }
 
     public enum Operation {
-        BALANCE("b"),
-        SUPPLY("s"),
-        PURCHASE("p"),
-        RETURN("r");
+        BALANCE("b"), SUPPLY("s"), PURCHASE("p"), RETURN("r");
 
-        private String code;
+        private final String code;
 
         Operation(String code) {
             this.code = code;
@@ -41,11 +41,11 @@ public class FruitTransaction {
 
         public static Operation getByCode(String code) {
             for (Operation op : values()) {
-                if (op.getCode().equals(code)) {
+                if (op.code.equals(code)) {
                     return op;
                 }
             }
-            throw new IllegalArgumentException("No such operation with code: " + code);
+            throw new RuntimeException("Unknown operation code: " + code);
         }
     }
 }

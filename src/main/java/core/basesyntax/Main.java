@@ -25,19 +25,19 @@ import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
-        Storage.getAll().clear();
+        Storage storage = new Storage();
+
+        Map<FruitTransaction.Operation, OperationHandler> handlers = new HashMap<>();
+        handlers.put(FruitTransaction.Operation.BALANCE, new BalanceHandler(storage));
+        handlers.put(FruitTransaction.Operation.PURCHASE, new PurchaseHandler(storage));
+        handlers.put(FruitTransaction.Operation.RETURN, new ReturnHandler(storage));
+        handlers.put(FruitTransaction.Operation.SUPPLY, new SupplyHandler(storage));
+
+        OperationStrategy strategy = new OperationStrategyImpl(handlers);
+        ShopService shopService = new ShopServiceImpl(strategy);
 
         FileReader fileReader = new FileReaderImpl();
         List<String> inputReport = fileReader.read("src/main/resources/reportToRead.csv");
-
-        Map<FruitTransaction.Operation, OperationHandler> operationHandlers = new HashMap<>();
-        operationHandlers.put(FruitTransaction.Operation.BALANCE, new BalanceHandler());
-        operationHandlers.put(FruitTransaction.Operation.PURCHASE, new PurchaseHandler());
-        operationHandlers.put(FruitTransaction.Operation.RETURN, new ReturnHandler());
-        operationHandlers.put(FruitTransaction.Operation.SUPPLY, new SupplyHandler());
-
-        OperationStrategy operationStrategy = new OperationStrategyImpl(operationHandlers);
-        ShopService shopService = new ShopServiceImpl(operationStrategy);
 
         DataConverter dataConverter = new DataConverterImpl();
         List<FruitTransaction> transactions = dataConverter.convert(inputReport);
@@ -45,7 +45,7 @@ public class Main {
         shopService.process(transactions);
 
         ReportGenerator reportGenerator = new ReportGeneratorImpl();
-        String resultingReport = reportGenerator.getReport(Storage.getAll());
+        String resultingReport = reportGenerator.getReport(storage.getAll());
 
         FileWriter fileWriter = new FileWriterImpl();
         fileWriter.write(resultingReport, "src/main/resources/finalReport.csv");

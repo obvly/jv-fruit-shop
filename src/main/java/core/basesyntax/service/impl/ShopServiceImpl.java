@@ -2,7 +2,7 @@ package core.basesyntax.service.impl;
 
 import core.basesyntax.model.FruitTransaction;
 import core.basesyntax.service.ShopService;
-import core.basesyntax.strategy.OperationHandler; // ПРАВИЛЬНЫЙ ПУТЬ
+import core.basesyntax.strategy.OperationHandler;
 import core.basesyntax.strategy.OperationStrategy;
 import java.util.List;
 
@@ -16,14 +16,10 @@ public class ShopServiceImpl implements ShopService {
     @Override
     public void process(List<FruitTransaction> transactions) {
         if (transactions == null) {
-            throw new RuntimeException("Transactions list cannot be null");
+            throw new RuntimeException("Transactions cannot be null");
         }
         for (FruitTransaction transaction : transactions) {
             OperationHandler handler = strategy.get(transaction.getOperation());
-            if (handler == null) {
-                throw new RuntimeException("No handler found for operation: "
-                        + transaction.getOperation());
-            }
             handler.handle(transaction.getFruit(), transaction.getQuantity());
         }
     }
